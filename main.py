@@ -26,11 +26,13 @@ class MenuState:
 
     def draw(self, screen):
         screen.fill((0,0,255))
+        self.draw_message(screen)
+        
+    def draw_message(self, screen):
         play_image = FONT.render('PRESS ENTER TO START', True, (255,255,255))
         screen.blit(play_image, ((WIDTH-play_image.get_width())/2, (HEIGHT-play_image.get_height())/2 - 16))
         quit_image = FONT.render('PRESS Q TO QUIT', True, (255,255,255))
         screen.blit(quit_image, ((WIDTH-quit_image.get_width())/2, (HEIGHT-quit_image.get_height())/2 + 16))
-
 
 class PlayState:
     def __init__(self, game):
@@ -54,13 +56,21 @@ class GameOverState:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 self.game.change_state(StateID.PLAYING)
+            if event.key == pygame.K_ESCAPE:
+                self.game.change_state(StateID.MENU)
 
     def update(self, dt):
         pass
 
     def draw(self, screen):
-        screen.fill((255,0,255))
+        screen.fill((255,0,0))
+        self.draw_message(screen)
 
+    def draw_message(self, screen):
+        restart_image = FONT.render('PRESS R TO RESTART', True, (255,255,255))
+        screen.blit(restart_image, ((WIDTH-restart_image.get_width())/2, (HEIGHT-restart_image.get_height())/2 - 16))
+        escape_image = FONT.render('ESC TO RETURN TO MENU', True, (255,255,255))
+        screen.blit(escape_image, ((WIDTH-escape_image.get_width())/2, (HEIGHT-escape_image.get_height())/2 + 16))
 
 class Game:
     def __init__(self):
