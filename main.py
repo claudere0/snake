@@ -115,7 +115,7 @@ class GameOverState:
 
     def events(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r:
+            if event.key == pygame.K_RETURN:
                 self.game.change_state(StateID.PLAYING)
             if event.key == pygame.K_ESCAPE:
                 self.game.change_state(StateID.MENU)
@@ -128,7 +128,7 @@ class GameOverState:
         self.draw_message(screen)
 
     def draw_message(self, screen):
-        restart_image = FONT.render('PRESS R TO RESTART', True, (255,255,255))
+        restart_image = FONT.render('PRESS ENTER TO RESTART', True, (255,255,255))
         screen.blit(restart_image, ((WIDTH-restart_image.get_width())//2, (HEIGHT-restart_image.get_height())//2 - 16))
 
         escape_image = FONT.render('ESC TO RETURN TO MENU', True, (255,255,255))
@@ -137,8 +137,7 @@ class GameOverState:
 class SettingsState:
     def __init__(self, game):
         self.game = game
-        
-        # Список доступных цветов (RGB)
+
         self.colors = [
             (0, 0, 0),
             (0, 0, 255),
@@ -155,6 +154,8 @@ class SettingsState:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.game.change_state(StateID.MENU)
+            if event.key == pygame.K_RETURN:
+                self.game.change_state(StateID.PLAYING)
 
             if event.key == pygame.K_LEFT:
                 self.color_index = (self.color_index - 1) % len(self.colors)
@@ -185,6 +186,10 @@ class SettingsState:
 
         escape_image = FONT.render('ESC TO RETURN TO MENU', True, (255, 255, 255))
         screen.blit(escape_image, ((WIDTH - escape_image.get_width()) // 2, (HEIGHT - escape_image.get_height()) // 2 + 32))
+
+        restart_image = FONT.render('PRESS ENTER TO RESTART', True, (255,255,255))
+        screen.blit(restart_image, ((WIDTH-restart_image.get_width())//2, (HEIGHT-restart_image.get_height())//2 + 64))
+        
 
 class Snake:
     def __init__(self):
