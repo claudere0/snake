@@ -118,12 +118,16 @@ class GameOverState:
 
 class Snake:
     def __init__(self):
+        # load head, body, tail
+        # pygame.mixer.Sound cruch_sound
         self.reset()
 
     def reset(self):
         self.body = [Vector2(5, 5), Vector2(4, 5), Vector2(3, 5)]
         self.direction = Vector2(1,0)
         self.next_direction = Vector2(1,0)
+
+        self.new_block = False
 
     def handle_input(self, event):
         if event.type == pygame.KEYDOWN:
@@ -135,6 +139,18 @@ class Snake:
                 self.next_direction = Vector2(-1, 0)
             elif event.key == pygame.K_RIGHT and self.direction.x != -1:
                 self.next_direction = Vector2(1, 0)
+
+    def update(self):
+        if self.new_block:
+            pass # body increase logic, and in the end self.new_block = False
+        else:
+            pass # move ?
+
+    def add_block(self):
+        self.new_block = True
+
+    # def play_crunch_sound(self):
+    #     self.crunch_sound.play()
 
     def move(self):
         self.direction = self.next_direction
@@ -150,6 +166,8 @@ class Snake:
                 TOP_PANEL_HEIGHT + (segment.y * CELL_SIZE), CELL_SIZE, CELL_SIZE
             )
             pygame.draw.rect(screen, (0, 255, 0), rect)
+
+            # more complex draw logic for images
 
 class Game:
     def __init__(self):
