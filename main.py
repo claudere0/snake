@@ -5,6 +5,7 @@ pygame.init()
 WIDTH = 512
 HEIGHT = 512
 FPS = 60
+FONT = pygame.font.SysFont('monospace', 36)
 
 class StateID(Enum):
     MENU = auto()
@@ -24,7 +25,12 @@ class MenuState:
         pass
 
     def draw(self, screen):
-        screen.fill((0,255,255))
+        screen.fill((0,0,255))
+        play_image = FONT.render('PRESS ENTER TO START', True, (255,255,255))
+        screen.blit(play_image, ((WIDTH-play_image.get_width())/2, (HEIGHT-play_image.get_height())/2 - 16))
+        quit_image = FONT.render('PRESS Q TO QUIT', True, (255,255,255))
+        screen.blit(quit_image, ((WIDTH-quit_image.get_width())/2, (HEIGHT-quit_image.get_height())/2 + 16))
+
 
 class PlayState:
     def __init__(self, game):
