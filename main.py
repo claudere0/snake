@@ -2,10 +2,18 @@ import pygame
 from enum import Enum, auto
 pygame.init()
 
-WIDTH = 512
-HEIGHT = 512
 FPS = 60
 FONT = pygame.font.SysFont('monospace', 36)
+
+CELL_SIZE = 32
+GRID_WIDTH = 16
+GRID_HEIGHT = 12
+
+TOP_PANEL_HEIGHT = 64
+BOTTOM_PANEL_HEIGHT = 64
+
+WIDTH = GRID_WIDTH * CELL_SIZE
+HEIGHT = TOP_PANEL_HEIGHT + (GRID_HEIGHT * CELL_SIZE) + BOTTOM_PANEL_HEIGHT
 
 class StateID(Enum):
     MENU = auto()
@@ -37,6 +45,8 @@ class MenuState:
 class PlayState:
     def __init__(self, game):
         self.game = game
+        self.score = 0
+        self.high_score = 0
 
     def events(self, event):
         if event.type == pygame.KEYDOWN:
@@ -46,7 +56,28 @@ class PlayState:
     def update(self, dt):
         pass
 
-    def draw(self, screen): screen.fill((0, 0, 0))
+    def draw(self, screen): 
+        # screen.fill((0, 255, 0))
+        screen.fill((31,31,31))
+        game_rect = pygame.Rect(0, TOP_PANEL_HEIGHT, WIDTH, GRID_HEIGHT * CELL_SIZE)
+        pygame.draw.rect(screen, (0, 0, 0), game_rect)
+
+        self.draw_grid(screen)
+        self.draw_ui(screen)
+
+    def draw_grid(self, screen):
+        for x in range(0, WIDTH, CELL_SIZE):
+            pygame.draw.line(screen, (63,63,63), (x, TOP_PANEL_HEIGHT), (x, HEIGHT - BOTTOM_PANEL_HEIGHT))
+
+        for y in range(TOP_PANEL_HEIGHT, HEIGHT - BOTTOM_PANEL_HEIGHT, CELL_SIZE):
+            pygame.draw.line(screen, (63,63,63), (0, y), (WIDTH, y))
+
+    def draw_ui(self, screen):
+        score_surface = FONT.render(f"SCORE: {self.score}", True, (255, 255, 255))
+        screen.blit(score_surface, (16, (TOP_PANEL_HEIGHT - score_surface.get_height()) // 2))
+
+        high_surface = FONT.render(f"HIGH SCORE: {self.high_score}", True, (255, 255, 255))
+        screen.blit(high_surface, (16, HEIGHT - BOTTOM_PANEL_HEIGHT + (BOTTOM_PANEL_HEIGHT - high_surface.get_height()) // 2))
 
 class GameOverState:
     def __init__(self, game):
@@ -83,7 +114,8 @@ class Game:
             StateID.PLAYING: PlayState(self),
             StateID.GAME_OVER: GameOverState(self)
         }
-        self.current_state = self.states[StateID.MENU]
+        # self.current_state = self.states[StateID.MENU]
+        self.current_state = self.states[StateID.PLAYING]
 
         self.running = True
 
