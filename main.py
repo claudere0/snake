@@ -57,12 +57,15 @@ class PlayState:
         self.high_score = 0
 
         self.snake = Snake()
+        self.food = Food()
+        self.food.respawn(self.snake.body)
 
         self.move_timer = 0.0
         self.STEP_INTERVAL = 0.1
 
     def reset_game(self):
         self.score = 0
+        self.food.respawn(self.snake.body)
         self.snake.reset()
         self.move_timer = 0.0
 
@@ -79,8 +82,17 @@ class PlayState:
         if self.move_timer >= self.STEP_INTERVAL:
             self.move_timer -= self.STEP_INTERVAL
             self.snake.move()
-
+            self.check_food_collision()
             self.collision()
+
+    def check_food_collision(self):
+        if self.snake.head == self.food.pos:
+            self.snake.grow()
+            self.food.respawn(self.snake.body)
+            self.score += 1
+
+            if self.score > self.high_score:
+                self.high_score = self.score
 
     def collision(self):
         if self.snake.check_wall_collision() or self.snake.check_self_collision():
@@ -93,6 +105,7 @@ class PlayState:
         pygame.draw.rect(screen, (0, 0, 0), game_rect)
 
         self.draw_grid(screen)
+        self.food.draw(screen)
         self.snake.draw(screen)
         self.draw_ui(screen)
 
