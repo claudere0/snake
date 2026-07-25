@@ -89,7 +89,7 @@ class PlayState:
         if self.snake.head == self.food.pos:
             self.snake.grow()
             self.food.respawn(self.snake.body)
-            self.score += 1
+            self.score += self.food.value
 
             if self.score > self.high_score:
                 self.high_score = self.score
@@ -129,7 +129,7 @@ class GameOverState:
 
     def events(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
+            if event.key == pygame.K_RETURN or event.key == pygame.K_r:
                 self.game.change_state(StateID.PLAYING)
             if event.key == pygame.K_ESCAPE:
                 self.game.change_state(StateID.MENU)
@@ -268,8 +268,14 @@ class Snake:
 class Food:
     def __init__(self):
         self.pos = Vector2(0, 0)
+        self.rarity()
+        self.value = 1 if self.type == 'common' else 10
+        self.color = (255,0,0) if self.type == 'common' else (255,255,0)
 
     def respawn(self, snake_body):
+        self.rarity()
+        self.value = 1 if self.type == 'common' else 10
+        self.color = (255,0,0) if self.type == 'common' else (255,255,0)
         while True:
             rx = randint(0, GRID_WIDTH - 1)
             ry = randint(0, GRID_HEIGHT - 1)
@@ -279,6 +285,11 @@ class Food:
                 self.pos = new_pos
                 break
 
+    def rarity(self):
+        if randint(1,9) == 8:
+            self.type = 'rare'
+        else: self.type = 'common'
+
     def draw(self, screen):
         rect = pygame.Rect(
             self.pos.x * CELL_SIZE,
@@ -286,7 +297,7 @@ class Food:
             CELL_SIZE,
             CELL_SIZE
         )
-        pygame.draw.rect(screen, (255, 0, 0), rect)
+        pygame.draw.rect(screen, self.color, rect)
 
 class Game:
     def __init__(self):
