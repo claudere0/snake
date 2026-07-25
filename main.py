@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 from pygame.math import Vector2
 from enum import Enum, auto
 pygame.init()
@@ -189,7 +190,6 @@ class SettingsState:
 
         restart_image = FONT.render('PRESS ENTER TO RESTART', True, (255,255,255))
         screen.blit(restart_image, ((WIDTH-restart_image.get_width())//2, (HEIGHT-restart_image.get_height())//2 + 64))
-        
 
 class Snake:
     def __init__(self):
@@ -254,6 +254,29 @@ class Snake:
 
     def check_self_collision(self):
         return self.head in self.body[1:]
+
+class Food:
+    def __init__(self):
+        self.pos = Vector2(0, 0)
+
+    def respawn(self, snake_body):
+        while True:
+            rx = randint(0, GRID_WIDTH - 1)
+            ry = randint(0, GRID_HEIGHT - 1)
+            new_pos = Vector2(rx, ry)
+
+            if new_pos not in snake_body:
+                self.pos = new_pos
+                break
+
+    def draw(self, screen):
+        rect = pygame.Rect(
+            self.pos.x * CELL_SIZE,
+            TOP_PANEL_HEIGHT + (self.pos.y * CELL_SIZE),
+            CELL_SIZE,
+            CELL_SIZE
+        )
+        pygame.draw.rect(screen, (255, 0, 0), rect)
 
 class Game:
     def __init__(self):
