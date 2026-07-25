@@ -202,8 +202,7 @@ class Snake:
         self.body = [Vector2(5, 5), Vector2(4, 5), Vector2(3, 5)]
         self.direction = Vector2(1,0)
         self.next_direction = Vector2(1,0)
-
-        self.new_block = False
+        self.grow_pending = False
 
     def handle_input(self, event):
         if event.type == pygame.KEYDOWN:
@@ -216,14 +215,8 @@ class Snake:
             elif event.key == pygame.K_RIGHT and self.direction.x != -1:
                 self.next_direction = Vector2(1, 0)
 
-    def update(self):
-        if self.new_block:
-            pass # body increase logic, and in the end self.new_block = False
-        else:
-            pass # move ?
-
-    def add_block(self):
-        self.new_block = True
+    def grow(self):
+        self.grow_pending = True
 
     # def play_crunch_sound(self):
     #     self.crunch_sound.play()
@@ -233,7 +226,11 @@ class Snake:
 
         new_head = self.body[0] + self.direction
         self.body.insert(0, new_head)
-        self.body.pop()
+
+        if self.grow_pending:
+            self.grow_pending = False
+        else:
+            self.body.pop()
 
     def draw(self, screen):
         for segment in self.body:
