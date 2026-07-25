@@ -20,6 +20,7 @@ class StateID(Enum):
     MENU = auto()
     PLAYING = auto()
     GAME_OVER = auto()
+    SETTINGS = auto()
 
 class MenuState:
     def __init__(self, game):
@@ -29,6 +30,8 @@ class MenuState:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
                 self.game.change_state(StateID.PLAYING)
+            if event.key == pygame.K_TAB:
+                self.game.change_state(StateID.SETTINGS)
 
     def update(self, dt):
         pass
@@ -42,6 +45,9 @@ class MenuState:
         screen.blit(play_image, ((WIDTH-play_image.get_width())//2, (HEIGHT-play_image.get_height())//2 - 16))
         quit_image = FONT.render('PRESS Q TO QUIT', True, (255,255,255))
         screen.blit(quit_image, ((WIDTH-quit_image.get_width())//2, (HEIGHT-quit_image.get_height())//2 + 16))
+        settings_image = FONT.render('PRESS TAB TO SETTINGS', True, (255,255,255))
+        screen.blit(settings_image, ((WIDTH-settings_image.get_width())//2, (HEIGHT-settings_image.get_height())//2 + 48))
+                
 
 class PlayState:
     def __init__(self, game):
@@ -124,13 +130,67 @@ class GameOverState:
     def draw_message(self, screen):
         restart_image = FONT.render('PRESS R TO RESTART', True, (255,255,255))
         screen.blit(restart_image, ((WIDTH-restart_image.get_width())//2, (HEIGHT-restart_image.get_height())//2 - 16))
+
         escape_image = FONT.render('ESC TO RETURN TO MENU', True, (255,255,255))
         screen.blit(escape_image, ((WIDTH-escape_image.get_width())//2, (HEIGHT-escape_image.get_height())//2 + 16))
+
+class SettingsState:
+    def __init__(self, game):
+        self.game = game
+        
+        # Список доступных цветов (RGB)
+        self.colors = [
+            (0, 0, 0),
+            (0, 0, 255),
+            (0, 255, 0),
+            (0, 255, 255),
+            (255, 0, 0),
+            (255, 0, 255),
+            (255, 255, 0),
+            (255, 255, 255)
+        ]
+        self.color_index = 2
+
+    def events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.game.change_state(StateID.MENU)
+
+            if event.key == pygame.K_LEFT:
+                self.color_index = (self.color_index - 1) % len(self.colors)
+                self.apply_color()
+
+            if event.key == pygame.K_RIGHT:
+                self.color_index = (self.color_index + 1) % len(self.colors)
+                self.apply_color()
+
+    def apply_color(self):
+        selected_color = self.colors[self.color_index]
+        play_state = self.game.states[StateID.PLAYING]
+        play_state.snake.color = selected_color
+
+    def update(self, dt):
+        pass
+
+    def draw(self, screen):
+        screen.fill((0,0,0))
+        self.draw_message(screen)
+        
+    def draw_message(self, screen):
+        play_image = FONT.render('ARROWS TO CHANGE COLOR', True, (255, 255, 255))
+        screen.blit(play_image, ((WIDTH - play_image.get_width()) // 2, (HEIGHT - play_image.get_height()) // 2 - 32))
+
+        preview_rect = pygame.Rect((WIDTH - 256) // 2, (HEIGHT - 32) // 2, 256, 32)
+        pygame.draw.rect(screen, self.colors[self.color_index], preview_rect)
+
+        escape_image = FONT.render('ESC TO RETURN TO MENU', True, (255, 255, 255))
+        screen.blit(escape_image, ((WIDTH - escape_image.get_width()) // 2, (HEIGHT - escape_image.get_height()) // 2 + 32))
 
 class Snake:
     def __init__(self):
         # load head, body, tail
         # pygame.mixer.Sound cruch_sound
+        self.color = (0,255,0)
         self.reset()
 
     def reset(self):
@@ -176,7 +236,7 @@ class Snake:
                 segment.x * CELL_SIZE,
                 TOP_PANEL_HEIGHT + (segment.y * CELL_SIZE), CELL_SIZE, CELL_SIZE
             )
-            pygame.draw.rect(screen, (0, 255, 0), rect)
+            pygame.draw.rect(screen, self.color, rect)
 
             # more complex draw logic for images
 
@@ -199,17 +259,17 @@ class Game:
         self.states = {
             StateID.MENU: MenuState(self),
             StateID.PLAYING: PlayState(self),
-            StateID.GAME_OVER: GameOverState(self)
+            StateID.GAME_OVER: GameOverState(self),
+            StateID.SETTINGS: SettingsState(self)
         }
-        # self.current_state = self.states[StateID.MENU]
-        self.current_state = self.states[StateID.PLAYING]
+        self.current_state = self.states[StateID.MENU]
 
         self.running = True
 
     def change_state(self, new_state_id):
         if new_state_id == StateID.PLAYING:
             self.states[StateID.PLAYING].reset_game()
-            
+
         self.current_state = self.states[new_state_id]
 
 
