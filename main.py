@@ -54,6 +54,11 @@ class PlayState:
         self.move_timer = 0.0
         self.STEP_INTERVAL = 0.1
 
+    def reset_game(self):
+        self.score = 0
+        self.snake.reset()
+        self.move_timer = 0.0
+
     def events(self, event):
         self.snake.handle_input(event)
 
@@ -67,6 +72,12 @@ class PlayState:
         if self.move_timer >= self.STEP_INTERVAL:
             self.move_timer -= self.STEP_INTERVAL
             self.snake.move()
+
+            self.collision()
+
+    def collision(self):
+        if self.snake.check_wall_collision() or self.snake.check_self_collision():
+            self.game.change_state(StateID.GAME_OVER)
 
     def draw(self, screen): 
         # screen.fill((0, 255, 0))
@@ -169,6 +180,16 @@ class Snake:
 
             # more complex draw logic for images
 
+    @property
+    def head(self):
+        return self.body[0]
+
+    def check_wall_collision(self):
+        return not (0 <= self.head.x < GRID_WIDTH and 0 <= self.head.y < GRID_HEIGHT)
+
+    def check_self_collision(self):
+        return self.head in self.body[1:]
+
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -186,7 +207,11 @@ class Game:
         self.running = True
 
     def change_state(self, new_state_id):
+        if new_state_id == StateID.PLAYING:
+            self.states[StateID.PLAYING].reset_game()
+            
         self.current_state = self.states[new_state_id]
+
 
 
     def events(self):
