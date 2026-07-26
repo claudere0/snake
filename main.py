@@ -103,7 +103,9 @@ def load_config():
                 return json.load(f)
         except:
             return default_config
-    return default_config
+    else:
+        save_config(default_config["theme_index"], default_config["high_score"])
+        return default_config
 
 def save_config(theme_index, high_score):
     data = {
