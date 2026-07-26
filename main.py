@@ -216,6 +216,9 @@ class PlayState:
         self.snake.draw(screen, theme)
         self.draw_ui(screen, theme)
 
+        if self.is_paused:
+            self.draw_pause(screen, theme)
+
     def draw_grid(self, screen):
         for x in range(0, WIDTH, CELL_SIZE):
             pygame.draw.line(screen, (0, 0, 0), (x, TOP_PANEL_HEIGHT), (x, HEIGHT - BOTTOM_PANEL_HEIGHT))
@@ -235,6 +238,15 @@ class PlayState:
 
         high_score_surface = FONT.render(f"HIGH SCORE: {self.high_score}", True, color)
         screen.blit(high_score_surface, (16, HEIGHT - BOTTOM_PANEL_HEIGHT + (BOTTOM_PANEL_HEIGHT - high_score_surface.get_height()) // 2))
+
+    def draw_pause(self, screen, theme):
+        color = theme["ui_text"]
+        pause_surface = FONT.render("PAUSED", True, color)
+
+        x = (WIDTH - pause_surface.get_width()) // 2
+        y = (HEIGHT - pause_surface.get_height()) // 2
+        
+        screen.blit(pause_surface, (x, y))
 
 class GameOverState:
     def __init__(self, game):
