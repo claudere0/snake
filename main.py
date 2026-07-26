@@ -162,20 +162,26 @@ class PlayState:
         self.move_timer = 0.0
         self.STEP_INTERVAL = 0.1
 
+        self.is_paused = False
+
     def reset_game(self):
         self.score = 0
         self.food.respawn(self.snake.body)
         self.snake.reset()
         self.move_timer = 0.0
+        self.is_paused = False
 
     def events(self, event):
-        self.snake.handle_input(event)
-
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                self.game.change_state(StateID.GAME_OVER)
+                self.is_paused = not self.is_paused
+            if not self.is_paused:
+                self.snake.handle_input(event)
 
     def update(self, dt):
+        if self.is_paused:
+            return
+
         self.move_timer += dt
 
         if self.move_timer >= self.STEP_INTERVAL:
