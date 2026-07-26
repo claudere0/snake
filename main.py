@@ -3,6 +3,7 @@ import json, os
 from random import randint
 from pygame.math import Vector2
 from enum import Enum, auto
+pygame.mixer.pre_init(44100,-16,2,512)
 pygame.init()
 
 FPS = 60
@@ -199,6 +200,8 @@ class PlayState:
         if self.snake.head == self.food.pos:
             self.snake.grow()
             self.score += self.food.value
+
+            self.game.play_sound("crunch")
             self.food.respawn(self.snake.body)
 
             self.STEP_INTERVAL = max(self.MIN_SPEED, self.STEP_INTERVAL - self.SPEED_STEP)
@@ -435,6 +438,9 @@ class Game:
         pygame.display.set_caption('snake')
         self.clock = pygame.time.Clock()
 
+        self.sounds = {}
+        self.load_sounds()
+
         self.config = load_config()
         self.theme_index = self.config.get("theme_index", 0)
 
@@ -452,6 +458,18 @@ class Game:
             self.states[StateID.PLAYING].reset_game()
 
         self.current_state = self.states[new_state_id]
+
+    def load_sounds(self):
+        try:
+            self.sounds["crunch"] = pygame.mixer.Sound("sound/crunch.wav")
+            self.sounds["crunch"].set_volume(0.25) 
+        except FileNotFoundError:
+            print("Warning: file sound/crunch.wav not found!")
+            self.sounds["crunch"] = None
+
+    def play_sound(self, sound_name):
+        if sound_name in self.sounds and self.sounds[sound_name]:
+            self.sounds[sound_name].play()
 
     def get_theme(self):
         return THEMES[self.theme_index]
