@@ -354,6 +354,11 @@ class Snake:
         self.direction = self.next_direction
 
         new_head = self.body[0] + self.direction
+
+        # if you want to block teleport, just comment next 2 lines of code, and uncomment wall collision
+        new_head.x = new_head.x % GRID_WIDTH
+        new_head.y = new_head.y % GRID_HEIGHT
+
         self.body.insert(0, new_head)
 
         if self.grow_pending:
@@ -376,7 +381,8 @@ class Snake:
         return self.body[0]
 
     def check_wall_collision(self):
-        return not (0 <= self.head.x < GRID_WIDTH and 0 <= self.head.y < GRID_HEIGHT)
+        # return not (0 <= self.head.x < GRID_WIDTH and 0 <= self.head.y < GRID_HEIGHT)
+        return False
 
     def check_self_collision(self):
         return self.head in self.body[1:]
