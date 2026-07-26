@@ -152,7 +152,8 @@ class PlayState:
     def __init__(self, game):
         self.game = game
         self.score = 0
-        self.high_score = 0
+
+        self.high_score = self.game.config.get("high_score", 0)
 
         self.snake = Snake()
         self.food = Food()
@@ -191,6 +192,7 @@ class PlayState:
 
             if self.score > self.high_score:
                 self.high_score = self.score
+                self.game.save_current_config()
 
     def collision(self):
         if self.snake.check_wall_collision() or self.snake.check_self_collision():
@@ -412,7 +414,6 @@ class Game:
             StateID.SETTINGS: SettingsState(self)
         }
         self.current_state = self.states[StateID.MENU]
-        load_config()
         self.running = True
 
     def change_state(self, new_state_id):
