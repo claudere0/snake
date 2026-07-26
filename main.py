@@ -186,8 +186,8 @@ class PlayState:
     def check_food_collision(self):
         if self.snake.head == self.food.pos:
             self.snake.grow()
-            self.food.respawn(self.snake.body)
             self.score += self.food.value
+            self.food.respawn(self.snake.body)
 
             if self.score > self.high_score:
                 self.high_score = self.score
