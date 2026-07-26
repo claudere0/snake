@@ -148,13 +148,11 @@ class MenuState:
         screen.blit(quit_image, ((WIDTH-quit_image.get_width())//2, (HEIGHT-quit_image.get_height())//2 + 16))
         settings_image = FONT.render('PRESS TAB TO SETTINGS', True, color)
         screen.blit(settings_image, ((WIDTH-settings_image.get_width())//2, (HEIGHT-settings_image.get_height())//2 + 48))
-                
 
 class PlayState:
     def __init__(self, game):
         self.game = game
         self.score = 0
-
         self.high_score = self.game.config.get("high_score", 0)
 
         self.snake = Snake()
@@ -162,7 +160,11 @@ class PlayState:
         self.food.respawn(self.snake.body)
 
         self.move_timer = 0.0
-        self.STEP_INTERVAL = 0.1
+        self.INITIAL_SPEED = 0.125
+        self.MIN_SPEED = 0.084
+        self.SPEED_STEP = 0.0005
+        
+        self.STEP_INTERVAL = self.INITIAL_SPEED
 
         self.is_paused = False
 
@@ -171,6 +173,7 @@ class PlayState:
         self.food.respawn(self.snake.body)
         self.snake.reset()
         self.move_timer = 0.0
+        self.STEP_INTERVAL = self.INITIAL_SPEED
         self.is_paused = False
 
     def events(self, event):
@@ -197,6 +200,8 @@ class PlayState:
             self.snake.grow()
             self.score += self.food.value
             self.food.respawn(self.snake.body)
+
+            self.STEP_INTERVAL = max(self.MIN_SPEED, self.STEP_INTERVAL - self.SPEED_STEP)
 
             if self.score > self.high_score:
                 self.high_score = self.score
