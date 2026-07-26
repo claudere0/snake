@@ -1,4 +1,5 @@
 import pygame
+import json, os
 from random import randint
 from pygame.math import Vector2
 from enum import Enum, auto
@@ -16,6 +17,74 @@ BOTTOM_PANEL_HEIGHT = 64
 
 WIDTH = GRID_WIDTH * CELL_SIZE
 HEIGHT = TOP_PANEL_HEIGHT + (GRID_HEIGHT * CELL_SIZE) + BOTTOM_PANEL_HEIGHT
+
+THEMES = [
+    {
+        "name": "CLASSIC MATRIX",
+        "bg": (0, 0, 0),
+        "snake": (0, 255, 0),
+        "food_common": (255, 0, 0),
+        "food_rare": (255, 255, 0),
+        "ui_text": (255, 255, 255),
+        "grid": (0, 0, 255)
+    },
+    {
+        "name": "CYBERPUNK",
+        "bg": (0, 0, 255),
+        "snake": (255, 255, 0),
+        "food_common": (255, 0, 255),
+        "food_rare": (0, 255, 255),
+        "ui_text": (255, 255, 255),
+        "grid": (0, 0, 0)
+    },
+    {
+        "name": "MONOCHROME",
+        "bg": (0, 0, 0),
+        "snake": (255, 255, 255),
+        "food_common": (255, 0, 0),
+        "food_rare": (0, 255, 0),
+        "ui_text": (255, 255, 255),
+        "grid": (255, 255, 255)
+    },
+    {
+        "name": "RETRO SUNSET",
+        "bg": (255, 0, 0),
+        "snake": (255, 255, 0),
+        "food_common": (0, 0, 0),
+        "food_rare": (0, 255, 255),
+        "ui_text": (255, 255, 255),
+        "grid": (255, 0, 255)
+    },
+    {
+        "name": "AQUA WAVE",
+        "bg": (0, 255, 255),
+        "snake": (0, 0, 255),
+        "food_common": (255, 0, 0),
+        "food_rare": (255, 255, 0),
+        "ui_text": (0, 0, 0),
+        "grid": (255, 255, 255)
+    }
+]
+
+CONFIG_FILE = "config.json"
+
+def load_config():
+    default_config = {"theme_index": 0, "high_score": 0}
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return default_config
+    return default_config
+
+def save_config(theme_index, high_score):
+    data = {
+        "theme_index": theme_index,
+        "high_score": high_score
+    }
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(data, f, indent=4)
 
 class StateID(Enum):
     MENU = auto()
@@ -38,15 +107,17 @@ class MenuState:
         pass
 
     def draw(self, screen):
-        screen.fill((0,0,255))
-        self.draw_message(screen)
+        theme = self.game.get_theme()
+        screen.fill(theme["bg"])
+        self.draw_message(screen, theme)
         
-    def draw_message(self, screen):
-        play_image = FONT.render('PRESS ENTER TO START', True, (255,255,255))
+    def draw_message(self, screen, theme):
+        color = theme["ui_text"]
+        play_image = FONT.render('PRESS ENTER TO START', True, color)
         screen.blit(play_image, ((WIDTH-play_image.get_width())//2, (HEIGHT-play_image.get_height())//2 - 16))
-        quit_image = FONT.render('PRESS Q TO QUIT', True, (255,255,255))
+        quit_image = FONT.render('PRESS Q TO QUIT', True, color)
         screen.blit(quit_image, ((WIDTH-quit_image.get_width())//2, (HEIGHT-quit_image.get_height())//2 + 16))
-        settings_image = FONT.render('PRESS TAB TO SETTINGS', True, (255,255,255))
+        settings_image = FONT.render('PRESS TAB TO SETTINGS', True, color)
         screen.blit(settings_image, ((WIDTH-settings_image.get_width())//2, (HEIGHT-settings_image.get_height())//2 + 48))
                 
 
@@ -99,28 +170,30 @@ class PlayState:
             self.game.change_state(StateID.GAME_OVER)
 
     def draw(self, screen): 
-        # screen.fill((0, 255, 0))
-        screen.fill((31,31,31))
+        theme = self.game.get_theme()
+        screen.fill(theme["bg"])
         game_rect = pygame.Rect(0, TOP_PANEL_HEIGHT, WIDTH, GRID_HEIGHT * CELL_SIZE)
-        pygame.draw.rect(screen, (0, 0, 0), game_rect)
+        pygame.draw.rect(screen, theme["bg"], game_rect)
 
-        self.draw_grid(screen)
-        self.food.draw(screen)
-        self.snake.draw(screen)
-        self.draw_ui(screen)
+        self.draw_grid(screen, theme)
+        self.food.draw(screen, theme)
+        self.snake.draw(screen, theme)
+        self.draw_ui(screen, theme)
 
-    def draw_grid(self, screen):
+    def draw_grid(self, screen, theme):
+        grid_color = theme["grid"]
         for x in range(0, WIDTH, CELL_SIZE):
-            pygame.draw.line(screen, (63,63,63), (x, TOP_PANEL_HEIGHT), (x, HEIGHT - BOTTOM_PANEL_HEIGHT))
+            pygame.draw.line(screen, grid_color, (x, TOP_PANEL_HEIGHT), (x, HEIGHT - BOTTOM_PANEL_HEIGHT))
 
         for y in range(TOP_PANEL_HEIGHT, HEIGHT - BOTTOM_PANEL_HEIGHT, CELL_SIZE):
-            pygame.draw.line(screen, (63,63,63), (0, y), (WIDTH, y))
+            pygame.draw.line(screen, grid_color, (0, y), (WIDTH, y))
 
-    def draw_ui(self, screen):
-        score_surface = FONT.render(f"SCORE: {self.score}", True, (255, 255, 255))
+    def draw_ui(self, screen, theme):
+        color = theme["ui_text"]
+        score_surface = FONT.render(f"SCORE: {self.score}", True, color)
         screen.blit(score_surface, (16, (TOP_PANEL_HEIGHT - score_surface.get_height()) // 2))
 
-        high_score_surface = FONT.render(f"HIGH SCORE: {self.high_score}", True, (255, 255, 255))
+        high_score_surface = FONT.render(f"HIGH SCORE: {self.high_score}", True, color)
         screen.blit(high_score_surface, (16, HEIGHT - BOTTOM_PANEL_HEIGHT + (BOTTOM_PANEL_HEIGHT - high_score_surface.get_height()) // 2))
 
 class GameOverState:
@@ -138,31 +211,21 @@ class GameOverState:
         pass
 
     def draw(self, screen):
-        screen.fill((255,0,0))
-        self.draw_message(screen)
+        theme = self.game.get_theme()
+        screen.fill(theme["bg"])
+        self.draw_message(screen, theme)
 
-    def draw_message(self, screen):
-        restart_image = FONT.render('PRESS ENTER TO RESTART', True, (255,255,255))
+    def draw_message(self, screen, theme):
+        color = theme["ui_text"]
+        restart_image = FONT.render('PRESS ENTER TO RESTART', True, color)
         screen.blit(restart_image, ((WIDTH-restart_image.get_width())//2, (HEIGHT-restart_image.get_height())//2 - 16))
 
-        escape_image = FONT.render('ESC TO RETURN TO MENU', True, (255,255,255))
+        escape_image = FONT.render('ESC TO RETURN TO MENU', True, color)
         screen.blit(escape_image, ((WIDTH-escape_image.get_width())//2, (HEIGHT-escape_image.get_height())//2 + 16))
 
 class SettingsState:
     def __init__(self, game):
         self.game = game
-
-        self.colors = [
-            (0, 0, 0),
-            (0, 0, 255),
-            (0, 255, 0),
-            (0, 255, 255),
-            (255, 0, 0),
-            (255, 0, 255),
-            (255, 255, 0),
-            (255, 255, 255)
-        ]
-        self.color_index = 2
 
     def events(self, event):
         if event.type == pygame.KEYDOWN:
@@ -172,37 +235,36 @@ class SettingsState:
                 self.game.change_state(StateID.PLAYING)
 
             if event.key == pygame.K_LEFT:
-                self.color_index = (self.color_index - 1) % len(self.colors)
-                self.apply_color()
+                self.game.theme_index = (self.game.theme_index - 1) % len(THEMES)
+                self.game.save_current_config()
 
             if event.key == pygame.K_RIGHT:
-                self.color_index = (self.color_index + 1) % len(self.colors)
-                self.apply_color()
-
-    def apply_color(self):
-        selected_color = self.colors[self.color_index]
-        play_state = self.game.states[StateID.PLAYING]
-        play_state.snake.color = selected_color
+                self.game.theme_index = (self.game.theme_index + 1) % len(THEMES)
+                self.game.save_current_config()
 
     def update(self, dt):
         pass
 
     def draw(self, screen):
-        screen.fill((0,0,0))
-        self.draw_message(screen)
+        theme = self.game.get_theme()
+        screen.fill(theme["bg"])
+        self.draw_message(screen, theme)
         
-    def draw_message(self, screen):
-        play_image = FONT.render('ARROWS TO CHANGE COLOR', True, (255, 255, 255))
-        screen.blit(play_image, ((WIDTH - play_image.get_width()) // 2, (HEIGHT - play_image.get_height()) // 2 - 32))
+    def draw_message(self, screen, theme):
+        color = theme["ui_text"]
+        play_image = FONT.render(f"THEME: {theme['name']}", True, color)
+        screen.blit(play_image, ((WIDTH - play_image.get_width()) // 2, (HEIGHT - play_image.get_height()) // 2 - 64))
 
-        preview_rect = pygame.Rect((WIDTH - 256) // 2, (HEIGHT - 32) // 2, 256, 32)
-        pygame.draw.rect(screen, self.colors[self.color_index], preview_rect)
+        prompt_image = FONT.render('ARROWS TO CHANGE THEME', True, color)
+        screen.blit(prompt_image, ((WIDTH - prompt_image.get_width()) // 2, (HEIGHT - prompt_image.get_height()) // 2 - 24))
 
-        escape_image = FONT.render('ESC TO RETURN TO MENU', True, (255, 255, 255))
-        screen.blit(escape_image, ((WIDTH - escape_image.get_width()) // 2, (HEIGHT - escape_image.get_height()) // 2 + 32))
+        snake_rect = pygame.Rect((WIDTH - 128) // 2, (HEIGHT - 32) // 2 + 20, 64, 32)
+        food_rect = pygame.Rect((WIDTH - 128) // 2 + 64, (HEIGHT - 32) // 2 + 20, 64, 32)
+        pygame.draw.rect(screen, theme["snake"], snake_rect)
+        pygame.draw.rect(screen, theme["food_common"], food_rect)
 
-        restart_image = FONT.render('PRESS ENTER TO RESTART', True, (255,255,255))
-        screen.blit(restart_image, ((WIDTH-restart_image.get_width())//2, (HEIGHT-restart_image.get_height())//2 + 64))
+        escape_image = FONT.render('ESC TO RETURN TO MENU', True, color)
+        screen.blit(escape_image, ((WIDTH - escape_image.get_width()) // 2, (HEIGHT - escape_image.get_height()) // 2 + 64))
 
 class Snake:
     def __init__(self):
@@ -245,13 +307,13 @@ class Snake:
         else:
             self.body.pop()
 
-    def draw(self, screen):
+    def draw(self, screen, theme):
         for segment in self.body:
             rect = pygame.Rect(
                 segment.x * CELL_SIZE,
                 TOP_PANEL_HEIGHT + (segment.y * CELL_SIZE), CELL_SIZE, CELL_SIZE
             )
-            pygame.draw.rect(screen, self.color, rect)
+            pygame.draw.rect(screen, theme["snake"], rect)
 
             # more complex draw logic for images
 
@@ -268,14 +330,13 @@ class Snake:
 class Food:
     def __init__(self):
         self.pos = Vector2(0, 0)
-        self.rarity()
-        self.value = 1 if self.type == 'common' else 10
+        self.type = 'common'
+        self.value = 1
         self.color = (255,0,0) if self.type == 'common' else (255,255,0)
 
     def respawn(self, snake_body):
         self.rarity()
         self.value = 1 if self.type == 'common' else 10
-        self.color = (255,0,0) if self.type == 'common' else (255,255,0)
         while True:
             rx = randint(0, GRID_WIDTH - 1)
             ry = randint(0, GRID_HEIGHT - 1)
@@ -286,24 +347,29 @@ class Food:
                 break
 
     def rarity(self):
-        if randint(1,9) == 8:
+        if randint(1, 9) == 8:
             self.type = 'rare'
-        else: self.type = 'common'
+        else:
+            self.type = 'common'
 
-    def draw(self, screen):
+    def draw(self, screen, theme):
+        color = theme["food_common"] if self.type == 'common' else theme["food_rare"]
         rect = pygame.Rect(
             self.pos.x * CELL_SIZE,
             TOP_PANEL_HEIGHT + (self.pos.y * CELL_SIZE),
             CELL_SIZE,
             CELL_SIZE
         )
-        pygame.draw.rect(screen, self.color, rect)
+        pygame.draw.rect(screen, color, rect)
 
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('snake')
         self.clock = pygame.time.Clock()
+
+        self.config = load_config()
+        self.theme_index = self.config.get("theme_index", 0)
 
         self.states = {
             StateID.MENU: MenuState(self),
@@ -312,7 +378,7 @@ class Game:
             StateID.SETTINGS: SettingsState(self)
         }
         self.current_state = self.states[StateID.MENU]
-
+        load_config()
         self.running = True
 
     def change_state(self, new_state_id):
@@ -321,7 +387,12 @@ class Game:
 
         self.current_state = self.states[new_state_id]
 
+    def get_theme(self):
+        return THEMES[self.theme_index]
 
+    def save_current_config(self):
+        play_state = self.states[StateID.PLAYING]
+        save_config(self.theme_index, play_state.high_score)
 
     def events(self):
         for event in pygame.event.get():
