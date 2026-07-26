@@ -20,13 +20,22 @@ HEIGHT = TOP_PANEL_HEIGHT + (GRID_HEIGHT * CELL_SIZE) + BOTTOM_PANEL_HEIGHT
 
 THEMES = [
     {
-        "name": "CLASSIC MATRIX",
+        "name": "CLASSIC",
         "bg": (0, 0, 0),
         "snake": (0, 255, 0),
         "food_common": (255, 0, 0),
         "food_rare": (255, 255, 0),
         "ui_text": (255, 255, 255),
-        "grid": (0, 0, 255)
+        "ui_bg": (0, 0, 0)
+    },
+    {
+        "name": "MONOCHROME",
+        "bg": (0, 0, 0),
+        "snake": (255, 255, 255),
+        "food_common": (0, 255, 0),
+        "food_rare": (255, 0, 0),
+        "ui_text": (0, 255, 0),
+        "ui_bg": (0, 0, 0)
     },
     {
         "name": "CYBERPUNK",
@@ -35,25 +44,16 @@ THEMES = [
         "food_common": (255, 0, 255),
         "food_rare": (0, 255, 255),
         "ui_text": (255, 255, 255),
-        "grid": (0, 0, 0)
+        "ui_bg": (255, 0, 255)
     },
     {
-        "name": "MONOCHROME",
-        "bg": (0, 0, 0),
+        "name": "ROYAL",
+        "bg": (0, 0, 255),
         "snake": (255, 255, 255),
-        "food_common": (255, 0, 0),
-        "food_rare": (0, 255, 0),
+        "food_common": (255, 255, 0),
+        "food_rare": (255, 0, 255),
         "ui_text": (255, 255, 255),
-        "grid": (255, 255, 255)
-    },
-    {
-        "name": "RETRO SUNSET",
-        "bg": (255, 0, 0),
-        "snake": (255, 255, 0),
-        "food_common": (0, 0, 0),
-        "food_rare": (0, 255, 255),
-        "ui_text": (255, 255, 255),
-        "grid": (255, 0, 255)
+        "ui_bg": (0, 0, 255)
     },
     {
         "name": "AQUA WAVE",
@@ -62,7 +62,34 @@ THEMES = [
         "food_common": (255, 0, 0),
         "food_rare": (255, 255, 0),
         "ui_text": (0, 0, 0),
-        "grid": (255, 255, 255)
+        "ui_bg": (255, 255, 255)
+    },
+    {
+        "name": "ICE",
+        "bg": (255, 255, 255),
+        "snake": (0, 255, 255),
+        "food_common": (0, 0, 255),
+        "food_rare": (255, 0, 255),
+        "ui_text": (0, 0, 255),
+        "ui_bg": (255, 255, 255)
+    },
+    {
+        "name": "TAXI",
+        "bg": (255, 255, 0),
+        "snake": (0, 0, 0),
+        "food_common": (255, 0, 0),
+        "food_rare": (255, 0, 255),
+        "ui_text": (0, 0, 0),
+        "ui_bg": (255, 255, 0)
+    },
+    {
+        "name": "VOLCANO",
+        "bg": (255, 0, 0),
+        "snake": (0, 0, 0),
+        "food_common": (255, 255, 0),
+        "food_rare": (255, 255, 255),
+        "ui_text": (255, 255, 0),
+        "ui_bg": (0, 0, 0)
     }
 ]
 
@@ -171,22 +198,27 @@ class PlayState:
 
     def draw(self, screen): 
         theme = self.game.get_theme()
-        screen.fill(theme["bg"])
+        screen.fill(theme["ui_bg"])
         game_rect = pygame.Rect(0, TOP_PANEL_HEIGHT, WIDTH, GRID_HEIGHT * CELL_SIZE)
         pygame.draw.rect(screen, theme["bg"], game_rect)
 
-        self.draw_grid(screen, theme)
+        self.draw_grid(screen)
+        self.draw_border(screen, theme)
         self.food.draw(screen, theme)
         self.snake.draw(screen, theme)
         self.draw_ui(screen, theme)
 
-    def draw_grid(self, screen, theme):
-        grid_color = theme["grid"]
+    def draw_grid(self, screen):
         for x in range(0, WIDTH, CELL_SIZE):
-            pygame.draw.line(screen, grid_color, (x, TOP_PANEL_HEIGHT), (x, HEIGHT - BOTTOM_PANEL_HEIGHT))
+            pygame.draw.line(screen, (0, 0, 0), (x, TOP_PANEL_HEIGHT), (x, HEIGHT - BOTTOM_PANEL_HEIGHT))
 
         for y in range(TOP_PANEL_HEIGHT, HEIGHT - BOTTOM_PANEL_HEIGHT, CELL_SIZE):
-            pygame.draw.line(screen, grid_color, (0, y), (WIDTH, y))
+            pygame.draw.line(screen, (0, 0, 0), (0, y), (WIDTH, y))
+
+    def draw_border(self, screen, theme):
+        border_color = theme["ui_text"]
+        pygame.draw.line(screen, border_color, (0, TOP_PANEL_HEIGHT - 3), (WIDTH, TOP_PANEL_HEIGHT - 3), 4)
+        pygame.draw.line(screen, border_color, (0, HEIGHT - BOTTOM_PANEL_HEIGHT + 1), (WIDTH, HEIGHT - BOTTOM_PANEL_HEIGHT + 1), 4)
 
     def draw_ui(self, screen, theme):
         color = theme["ui_text"]
@@ -206,6 +238,8 @@ class GameOverState:
                 self.game.change_state(StateID.PLAYING)
             if event.key == pygame.K_ESCAPE:
                 self.game.change_state(StateID.MENU)
+            if event.key == pygame.K_TAB:
+                self.game.change_state(StateID.SETTINGS)
 
     def update(self, dt):
         pass
