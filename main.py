@@ -563,14 +563,8 @@ class AssetManager:
         if not self.spritesheet:
             return None
 
-        theme_base_x = (theme_index % 4) * THEME_SPRITESHEET_SIZE
-        theme_base_y = (theme_index // 4) * THEME_SPRITESHEET_SIZE
-
-        pixel_x = theme_base_x + (tile_x * CELL_SIZE)
-        pixel_y = theme_base_y + (tile_y * CELL_SIZE)
-
-        tile = pygame.Surface((CELL_SIZE, CELL_SIZE), pygame.SRCALPHA)
-        tile.blit(self.spritesheet, (0, 0), (pixel_x, pixel_y, CELL_SIZE, CELL_SIZE))
+        pixel_x = (theme_index % 4) * THEME_SPRITESHEET_SIZE + (tile_x * CELL_SIZE)
+        pixel_y = (theme_index // 4) * THEME_SPRITESHEET_SIZE + (tile_y * CELL_SIZE)
 
         return self.spritesheet.subsurface(pygame.Rect(pixel_x, pixel_y, CELL_SIZE, CELL_SIZE))
 
