@@ -219,7 +219,7 @@ class PlayState:
                 self.game.save_current_config()
 
     def collision(self):
-        if self.snake.check_wall_collision() or self.snake.check_self_collision():
+        if self.snake.check_self_collision():
             self.game.change_state(StateID.GAME_OVER)
 
     def draw(self, screen): 
@@ -370,7 +370,6 @@ class Snake:
             (0, 1):  (1, 3)   # down
         }
 
-        self.color = (0,255,0) # default snake color
         self.reset()
 
     def reset(self):
@@ -392,9 +391,6 @@ class Snake:
 
     def grow(self):
         self.grow_pending = True
-
-    # def play_crunch_sound(self):
-    #     self.crunch_sound.play()
 
     def move(self):
         self.direction = self.next_direction
@@ -490,10 +486,6 @@ class Snake:
     def head(self):
         return self.body[0]
 
-    def check_wall_collision(self):
-        # return not (0 <= self.head.x < GRID_WIDTH and 0 <= self.head.y < GRID_HEIGHT)
-        return False
-
     def check_self_collision(self):
         return self.head in self.body[1:]
 
@@ -502,7 +494,6 @@ class Food:
         self.pos = Vector2(0, 0)
         self.type = 'common'
         self.value = 1
-        self.color = (255,0,0) if self.type == 'common' else (255,255,0)
 
     def respawn(self, snake_body):
         self.rarity()
@@ -517,10 +508,7 @@ class Food:
                 break
 
     def rarity(self):
-        if randint(1, 9) == 8:
-            self.type = 'rare'
-        else:
-            self.type = 'common'
+        self.type = 'rare' if randint(1, 9) == 8 else 'common'
 
     def draw(self, screen, game):
         theme = game.get_theme()
@@ -583,7 +571,8 @@ class AssetManager:
 
         tile = pygame.Surface((CELL_SIZE, CELL_SIZE), pygame.SRCALPHA)
         tile.blit(self.spritesheet, (0, 0), (pixel_x, pixel_y, CELL_SIZE, CELL_SIZE))
-        return tile
+
+        return self.spritesheet.subsurface(pygame.Rect(pixel_x, pixel_y, CELL_SIZE, CELL_SIZE))
 
 class Game:
     def __init__(self):
