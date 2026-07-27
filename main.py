@@ -97,22 +97,25 @@ THEMES = [
 CONFIG_FILE = "config.json"
 
 def load_config():
-    default_config = {"theme_index": 0, "high_score": 0, "graphics_mode": "MINIMAL"}
+    default_config = {"theme_index": 0, "high_score": 0, "graphics_mode": "MINIMAL", "volume": 2}
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, "r") as f:
-                return json.load(f)
+                config = json.load(f)
+                if "volume" not in config: config["volume"] = 2
+                return config
         except:
             return default_config
     else:
-        save_config(default_config["theme_index"], default_config["high_score"])
+        save_config(default_config["theme_index"], default_config["high_score"], default_config["graphics_mode"], default_config["volume"])
         return default_config
 
-def save_config(theme_index, high_score, graphics_mode):
+def save_config(theme_index, high_score, graphics_mode, volume):
     data = {
         "theme_index": theme_index,
         "high_score": high_score,
-        "graphics_mode": graphics_mode
+        "graphics_mode": graphics_mode,
+        "volume": volume
     }
     with open(CONFIG_FILE, "w") as f:
         json.dump(data, f, indent=4)
