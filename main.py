@@ -317,6 +317,15 @@ class SettingsState:
                     self.game.graphics_mode = "MINIMAL"
                 self.game.save_current_config()
 
+            if pygame.K_0 <= event.key <= pygame.K_9:
+                level = event.key - pygame.K_0
+                self.game.set_volume_level(level)
+                self.game.play_sound("crunch")
+            elif pygame.K_KP0 <= event.key <= pygame.K_KP9:
+                level = event.key - pygame.K_KP0
+                self.game.set_volume_level(level)
+                self.game.play_sound("crunch")
+
     def update(self, dt):
         pass
 
@@ -333,15 +342,19 @@ class SettingsState:
 
     def draw_ui(self, screen, theme):
         color = theme["ui_text"]
+        vol_pct = self.game.volume_level * 11
 
-        self.draw_text(screen, f"THEME: {theme['name']}", color, -100)
-        self.draw_text(screen, f"GRAPHICS: {self.game.graphics_mode}", color, -60)
+        self.draw_text(screen, f"THEME: {theme['name']}", color, -140)
+        self.draw_text(screen, f"GRAPHICS: {self.game.graphics_mode}", color, -100)
+        self.draw_text(screen, f"VOLUME: {self.game.volume_level} ({vol_pct}%)", color, -60)
+
         self.draw_text(screen, "LEFT/RIGHT: THEME", color, -20)
         self.draw_text(screen, "UP/DOWN: GRAPHICS", color, 20)
-        self.draw_text(screen, "ESC TO MENU", color, 60)
+        self.draw_text(screen, "0-9: SET VOLUME", color, 60)
 
-        snake_rect = pygame.Rect((WIDTH - 128) // 2, (HEIGHT - 32) // 2 + 100, 64, 32)
-        food_rect = pygame.Rect((WIDTH - 128) // 2 + 64, (HEIGHT - 32) // 2 + 100, 64, 32)
+        self.draw_text(screen, "ESC TO MENU", color, 100)
+        snake_rect = pygame.Rect((WIDTH - 128) // 2, (HEIGHT - 32) // 2 + 140, 64, 32)
+        food_rect = pygame.Rect((WIDTH - 128) // 2 + 64, (HEIGHT - 32) // 2 + 140, 64, 32)
         pygame.draw.rect(screen, theme["snake"], snake_rect)
         pygame.draw.rect(screen, theme["food_common"], food_rect)
 
@@ -585,12 +598,13 @@ class Game:
         self.assets = AssetManager()
         self.sounds = {}
         self.load_sounds()
-        self.update_volume()
 
         self.config = load_config()
         self.theme_index = self.config.get("theme_index", 0)
         self.graphics_mode = self.config.get("graphics_mode", "MINIMAL")
         self.volume_level = self.config.get("volume", 2)
+
+        self.update_volume()
 
         self.states = {
             StateID.MENU: MenuState(self),
