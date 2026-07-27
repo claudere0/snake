@@ -223,8 +223,8 @@ class PlayState:
 
         self.draw_grid(screen)
         self.draw_border(screen, theme)
-        self.food.draw(screen, theme)
-        self.snake.draw(screen, theme)
+        self.food.draw(screen, self.game)
+        self.snake.draw(screen, self.game)
         self.draw_ui(screen, theme)
 
         if self.is_paused:
