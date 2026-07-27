@@ -96,6 +96,10 @@ THEMES = [
 
 CONFIG_FILE = "config.json"
 
+THEME_SPRITESHEET_SIZE = 128
+SCORE_OFFSET_X = 16
+
+
 def load_config():
     default_config = {"theme_index": 0, "high_score": 0, "graphics_mode": "MINIMAL", "volume": 2}
     if os.path.exists(CONFIG_FILE):
@@ -224,7 +228,6 @@ class PlayState:
         game_rect = pygame.Rect(0, TOP_PANEL_HEIGHT, WIDTH, GRID_HEIGHT * CELL_SIZE)
         pygame.draw.rect(screen, theme["bg"], game_rect)
 
-        self.draw_grid(screen)
         self.draw_border(screen, theme)
         self.food.draw(screen, self.game)
         self.snake.draw(screen, self.game)
@@ -232,13 +235,6 @@ class PlayState:
 
         if self.is_paused:
             self.draw_pause(screen, theme)
-
-    def draw_grid(self, screen):
-        for x in range(0, WIDTH, CELL_SIZE):
-            pygame.draw.line(screen, (0, 0, 0), (x, TOP_PANEL_HEIGHT), (x, HEIGHT - BOTTOM_PANEL_HEIGHT))
-
-        for y in range(TOP_PANEL_HEIGHT, HEIGHT - BOTTOM_PANEL_HEIGHT, CELL_SIZE):
-            pygame.draw.line(screen, (0, 0, 0), (0, y), (WIDTH, y))
 
     def draw_border(self, screen, theme):
         border_color = theme["ui_text"]
@@ -248,10 +244,10 @@ class PlayState:
     def draw_ui(self, screen, theme):
         color = theme["ui_text"]
         score_surface = FONT.render(f"SCORE: {self.score}", True, color)
-        screen.blit(score_surface, (16, (TOP_PANEL_HEIGHT - score_surface.get_height()) // 2))
+        screen.blit(score_surface, (SCORE_OFFSET_X, (TOP_PANEL_HEIGHT - score_surface.get_height()) // 2))
 
         high_score_surface = FONT.render(f"HIGH SCORE: {self.high_score}", True, color)
-        screen.blit(high_score_surface, (16, HEIGHT - BOTTOM_PANEL_HEIGHT + (BOTTOM_PANEL_HEIGHT - high_score_surface.get_height()) // 2))
+        screen.blit(high_score_surface, (SCORE_OFFSET_X, HEIGHT - BOTTOM_PANEL_HEIGHT + (BOTTOM_PANEL_HEIGHT - high_score_surface.get_height()) // 2))
 
     def draw_pause(self, screen, theme):
         color = theme["ui_text"]
@@ -579,8 +575,8 @@ class AssetManager:
         if not self.spritesheet:
             return None
 
-        theme_base_x = (theme_index % 4) * 128
-        theme_base_y = (theme_index // 4) * 128
+        theme_base_x = (theme_index % 4) * THEME_SPRITESHEET_SIZE
+        theme_base_y = (theme_index // 4) * THEME_SPRITESHEET_SIZE
 
         pixel_x = theme_base_x + (tile_x * CELL_SIZE)
         pixel_y = theme_base_y + (tile_y * CELL_SIZE)
@@ -624,7 +620,6 @@ class Game:
     def load_sounds(self):
         try:
             self.sounds["crunch"] = pygame.mixer.Sound("sound/crunch.wav")
-            self.sounds["crunch"].set_volume(0.25) 
         except FileNotFoundError:
             print("Warning: file sound/crunch.wav not found!")
             self.sounds["crunch"] = None
