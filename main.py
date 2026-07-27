@@ -388,15 +388,27 @@ class Snake:
         else:
             self.body.pop()
 
-    def draw(self, screen, theme):
+    def draw(self, screen, game):
+        theme = game.get_theme()
+
+        if game.graphics_mode == "SPRITES":
+            self.draw_sprites(screen, game)
+        else:
+            self.draw_minimal(screen, theme)
+
+    def draw_minimal(self, screen, theme):
         for segment in self.body:
             rect = pygame.Rect(
                 segment.x * CELL_SIZE,
-                TOP_PANEL_HEIGHT + (segment.y * CELL_SIZE), CELL_SIZE, CELL_SIZE
+                TOP_PANEL_HEIGHT + (segment.y * CELL_SIZE), 
+                CELL_SIZE, CELL_SIZE
             )
             pygame.draw.rect(screen, theme["snake"], rect)
 
-            # more complex draw logic for images
+    def draw_sprites(self, screen, game):
+        # later add asset manager
+        # show minimal while we have no sprites yet
+        self.draw_minimal(screen, game.get_theme())
 
     @property
     def head(self):
@@ -434,15 +446,26 @@ class Food:
         else:
             self.type = 'common'
 
-    def draw(self, screen, theme):
+    def draw(self, screen, game):
+        theme = game.get_theme()
+
+        if game.graphics_mode == "SPRITES":
+            self.draw_sprites(screen, game)
+        else:
+            self.draw_minimal(screen, theme)
+
+    def draw_minimal(self, screen, theme):
         color = theme["food_common"] if self.type == 'common' else theme["food_rare"]
         rect = pygame.Rect(
             self.pos.x * CELL_SIZE,
             TOP_PANEL_HEIGHT + (self.pos.y * CELL_SIZE),
-            CELL_SIZE,
-            CELL_SIZE
+            CELL_SIZE, CELL_SIZE
         )
         pygame.draw.rect(screen, color, rect)
+
+    def draw_sprites(self, screen, game):
+        # like snake draw_sprites
+        self.draw_minimal(screen, game.get_theme())
 
 class Game:
     def __init__(self):
