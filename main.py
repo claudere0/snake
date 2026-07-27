@@ -467,12 +467,43 @@ class Food:
         # like snake draw_sprites
         self.draw_minimal(screen, game.get_theme())
 
+class AssetManager:
+    def __init__(self):
+        self.spritesheet = None
+        self.load_spritesheet()
+
+    def load_spritesheet(self):
+        path = "images/theme_spritesheet.png"
+        if os.path.exists(path):
+            try:
+                self.spritesheet = pygame.image.load(path).convert_alpha()
+                print("Spritesheet loaded successfully!")
+                return
+            except Exception as e:
+                print(f"Error loading spritesheet: {e}")
+        print("Warning: theme_spritesheet.png not found!")
+
+    def get_tile(self, theme_index, tile_x, tile_y):
+        if not self.spritesheet:
+            return None
+
+        theme_base_x = (theme_index % 4) * 128
+        theme_base_y = (theme_index // 4) * 128
+
+        pixel_x = theme_base_x + (tile_x * CELL_SIZE)
+        pixel_y = theme_base_y + (tile_y * CELL_SIZE)
+
+        tile = pygame.Surface((CELL_SIZE, CELL_SIZE), pygame.SRCALPHA)
+        tile.blit(self.spritesheet, (0, 0), (pixel_x, pixel_y, CELL_SIZE, CELL_SIZE))
+        return tile
+
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('snake')
         self.clock = pygame.time.Clock()
 
+        self.assets = AssetManager()
         self.sounds = {}
         self.load_sounds()
 
