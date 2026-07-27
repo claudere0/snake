@@ -344,9 +344,21 @@ class SettingsState:
 
 class Snake:
     def __init__(self):
-        # load head, body, tail
-        # pygame.mixer.Sound cruch_sound
-        self.color = (0,255,0)
+        self.HEAD_MAP = {
+            (1, 0):  (2, 1),  # right
+            (0, -1): (3, 1),  # up
+            (-1, 0): (0, 1),  # left
+            (0, 1):  (1, 1)   # down
+        }
+
+        self.TAIL_MAP = {
+            (1, 0):  (2, 3),  # right
+            (0, -1): (3, 3),  # up
+            (-1, 0): (0, 3),  # left
+            (0, 1):  (1, 3)   # down
+        }
+
+        self.color = (0,255,0) # default snake color
         self.reset()
 
     def reset(self):
@@ -406,9 +418,61 @@ class Snake:
             pygame.draw.rect(screen, theme["snake"], rect)
 
     def draw_sprites(self, screen, game):
-        # later add asset manager
-        # show minimal while we have no sprites yet
-        self.draw_minimal(screen, game.get_theme())
+        theme_idx = game.theme_index
+
+        for i, segment in enumerate(self.body):
+            rect = pygame.Rect(
+                segment.x * CELL_SIZE,
+                TOP_PANEL_HEIGHT + (segment.y * CELL_SIZE),
+                CELL_SIZE, CELL_SIZE
+            )
+
+            if i == 0:
+                dir_key = (int(self.direction.x), int(self.direction.y))
+                tx, ty = self.HEAD_MAP.get(dir_key, (0, 1))
+
+            elif i == len(self.body) - 1:
+                tail_dir = self.fix_teleport_vector(self.body[i - 1] - segment)
+                dir_key = (int(tail_dir.x), int(tail_dir.y))
+                tx, ty = self.TAIL_MAP.get(dir_key, (0, 3))
+
+            # body
+            else:
+                prev_seg = self.fix_teleport_vector(self.body[i - 1] - segment)
+                next_seg = self.fix_teleport_vector(self.body[i + 1] - segment)
+
+                # default segment
+                if prev_seg.x == next_seg.x or prev_seg.y == next_seg.y:
+                    tx, ty = (2, 0)
+
+                # rotate
+                else:
+                    px, py = int(prev_seg.x), int(prev_seg.y)
+                    nx, ny = int(next_seg.x), int(next_seg.y)
+
+                    if (px == -1 and ny == 1) or (py == 1 and nx == -1):
+                        tx, ty = (0, 2)
+                    elif (px == 1 and ny == 1) or (py == 1 and nx == 1):
+                        tx, ty = (1, 2)
+                    elif (px == -1 and ny == -1) or (py == -1 and nx == -1):
+                        tx, ty = (2, 2)
+                    elif (px == 1 and ny == -1) or (py == -1 and nx == 1):
+                        tx, ty = (3, 2)
+                    else:
+                        tx, ty = (0, 2)
+
+            sprite = game.assets.get_tile(theme_idx, tx, ty)
+            if sprite:
+                screen.blit(sprite, rect)
+            else:
+                self.draw_minimal(screen, game.get_theme())
+
+    def fix_teleport_vector(self, vec):
+        if vec.x > 1: vec.x = -1
+        elif vec.x < -1: vec.x = 1
+        if vec.y > 1: vec.y = -1
+        elif vec.y < -1: vec.y = 1
+        return vec
 
     @property
     def head(self):
