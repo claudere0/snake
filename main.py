@@ -464,8 +464,20 @@ class Food:
         pygame.draw.rect(screen, color, rect)
 
     def draw_sprites(self, screen, game):
-        # like snake draw_sprites
-        self.draw_minimal(screen, game.get_theme())
+        tile_x = 0 if self.type == 'common' else 1
+        tile_y = 0
+
+        sprite = game.assets.get_tile(game.theme_index, tile_x, tile_y)
+
+        if sprite:
+            rect = pygame.Rect(
+                self.pos.x * CELL_SIZE,
+                TOP_PANEL_HEIGHT + (self.pos.y * CELL_SIZE),
+                CELL_SIZE, CELL_SIZE
+            )
+            screen.blit(sprite, rect)
+        else:
+            self.draw_minimal(screen, game.get_theme())
 
 class AssetManager:
     def __init__(self):
