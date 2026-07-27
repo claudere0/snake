@@ -138,7 +138,7 @@ class MenuState:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
                 self.game.change_state(StateID.PLAYING)
-            if event.key == pygame.K_TAB:
+            elif event.key == pygame.K_TAB:
                 self.game.change_state(StateID.SETTINGS)
 
     def update(self, dt):
@@ -148,15 +148,15 @@ class MenuState:
         theme = self.game.get_theme()
         screen.fill(theme["bg"])
         self.draw_message(screen, theme)
-        
+
     def draw_message(self, screen, theme):
         color = theme["ui_text"]
         play_image = FONT.render('PRESS ENTER TO START', True, color)
-        screen.blit(play_image, ((WIDTH-play_image.get_width())//2, (HEIGHT-play_image.get_height())//2 - 16))
+        screen.blit(play_image, ((WIDTH - play_image.get_width()) // 2, (HEIGHT - play_image.get_height()) // 2 - 16))
         quit_image = FONT.render('PRESS Q TO QUIT', True, color)
-        screen.blit(quit_image, ((WIDTH-quit_image.get_width())//2, (HEIGHT-quit_image.get_height())//2 + 16))
+        screen.blit(quit_image, ((WIDTH - quit_image.get_width()) // 2, (HEIGHT - quit_image.get_height()) // 2 + 16))
         settings_image = FONT.render('PRESS TAB TO SETTINGS', True, color)
-        screen.blit(settings_image, ((WIDTH-settings_image.get_width())//2, (HEIGHT-settings_image.get_height())//2 + 48))
+        screen.blit(settings_image, ((WIDTH - settings_image.get_width()) // 2, (HEIGHT - settings_image.get_height()) // 2 + 48))
 
 class PlayState:
     def __init__(self, game):
@@ -172,15 +172,16 @@ class PlayState:
         self.INITIAL_SPEED = 0.125
         self.MIN_SPEED = 0.084
         self.SPEED_STEP = 0.0005
-        
+
         self.STEP_INTERVAL = self.INITIAL_SPEED
 
         self.is_paused = False
 
     def reset_game(self):
         self.score = 0
-        self.food.respawn(self.snake.body)
         self.snake.reset()
+        self.food.respawn(self.snake.body)
+
         self.move_timer = 0.0
         self.STEP_INTERVAL = self.INITIAL_SPEED
         self.is_paused = False
@@ -189,7 +190,7 @@ class PlayState:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 self.is_paused = not self.is_paused
-            if not self.is_paused:
+            elif not self.is_paused:
                 self.snake.handle_input(event)
 
     def update(self, dt):
@@ -197,7 +198,6 @@ class PlayState:
             return
 
         self.move_timer += dt
-
         if self.move_timer >= self.STEP_INTERVAL:
             self.move_timer -= self.STEP_INTERVAL
             self.snake.move()
@@ -222,7 +222,7 @@ class PlayState:
         if self.snake.check_self_collision():
             self.game.change_state(StateID.GAME_OVER)
 
-    def draw(self, screen): 
+    def draw(self, screen):
         theme = self.game.get_theme()
         screen.fill(theme["ui_bg"])
         game_rect = pygame.Rect(0, TOP_PANEL_HEIGHT, WIDTH, GRID_HEIGHT * CELL_SIZE)
@@ -255,7 +255,7 @@ class PlayState:
 
         x = (WIDTH - pause_surface.get_width()) // 2
         y = (HEIGHT - pause_surface.get_height()) // 2
-        
+
         screen.blit(pause_surface, (x, y))
 
 class GameOverState:
@@ -264,11 +264,11 @@ class GameOverState:
 
     def events(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN or event.key == pygame.K_r:
+            if event.key in (pygame.K_RETURN, pygame.K_r):
                 self.game.change_state(StateID.PLAYING)
-            if event.key == pygame.K_ESCAPE:
+            elif event.key == pygame.K_ESCAPE:
                 self.game.change_state(StateID.MENU)
-            if event.key == pygame.K_TAB:
+            elif event.key == pygame.K_TAB:
                 self.game.change_state(StateID.SETTINGS)
 
     def update(self, dt):
@@ -282,10 +282,10 @@ class GameOverState:
     def draw_message(self, screen, theme):
         color = theme["ui_text"]
         restart_image = FONT.render('PRESS ENTER TO RESTART', True, color)
-        screen.blit(restart_image, ((WIDTH-restart_image.get_width())//2, (HEIGHT-restart_image.get_height())//2 - 16))
+        screen.blit(restart_image, ((WIDTH - restart_image.get_width()) // 2, (HEIGHT - restart_image.get_height()) // 2 - 16))
 
         escape_image = FONT.render('ESC TO RETURN TO MENU', True, color)
-        screen.blit(escape_image, ((WIDTH-escape_image.get_width())//2, (HEIGHT-escape_image.get_height())//2 + 16))
+        screen.blit(escape_image, ((WIDTH - escape_image.get_width()) // 2, (HEIGHT - escape_image.get_height()) // 2 + 16))
 
 class SettingsState:
     def __init__(self, game):
@@ -295,30 +295,28 @@ class SettingsState:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.game.change_state(StateID.MENU)
-            if event.key == pygame.K_RETURN:
+            elif event.key == pygame.K_RETURN:
                 self.game.change_state(StateID.PLAYING)
 
-            if event.key == pygame.K_LEFT:
+            elif event.key == pygame.K_LEFT:
                 self.game.theme_index = (self.game.theme_index - 1) % len(THEMES)
                 self.game.save_current_config()
 
-            if event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT:
                 self.game.theme_index = (self.game.theme_index + 1) % len(THEMES)
                 self.game.save_current_config()
 
-            if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                if self.game.graphics_mode == "MINIMAL":
-                    self.game.graphics_mode = "SPRITES"
-                else:
-                    self.game.graphics_mode = "MINIMAL"
+            elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                self.game.graphics_mode = "SPRITES" if self.game.graphics_mode == "MINIMAL" else "MINIMAL"
                 self.game.save_current_config()
 
+            level = None
             if pygame.K_0 <= event.key <= pygame.K_9:
                 level = event.key - pygame.K_0
-                self.game.set_volume_level(level)
-                self.game.play_sound("crunch")
             elif pygame.K_KP0 <= event.key <= pygame.K_KP9:
                 level = event.key - pygame.K_KP0
+
+            if level is not None:
                 self.game.set_volume_level(level)
                 self.game.play_sound("crunch")
 
@@ -329,7 +327,7 @@ class SettingsState:
         theme = self.game.get_theme()
         screen.fill(theme["bg"])
         self.draw_ui(screen, theme)
-        
+
     def draw_text(self, screen, text, color, y_offset):
         rendered_text = FONT.render(text, True, color)
         x = (WIDTH - rendered_text.get_width()) // 2
@@ -397,9 +395,8 @@ class Snake:
 
         new_head = self.body[0] + self.direction
 
-        # if you want to block teleport, just comment next 2 lines of code, and uncomment wall collision
-        new_head.x = new_head.x % GRID_WIDTH
-        new_head.y = new_head.y % GRID_HEIGHT
+        new_head.x %= GRID_WIDTH
+        new_head.y %= GRID_HEIGHT
 
         self.body.insert(0, new_head)
 
@@ -409,12 +406,10 @@ class Snake:
             self.body.pop()
 
     def draw(self, screen, game):
-        theme = game.get_theme()
-
         if game.graphics_mode == "SPRITES":
             self.draw_sprites(screen, game)
         else:
-            self.draw_minimal(screen, theme)
+            self.draw_minimal(screen, game.get_theme())
 
     def draw_minimal(self, screen, theme):
         for segment in self.body:
@@ -444,17 +439,14 @@ class Snake:
                 dir_key = (int(tail_dir.x), int(tail_dir.y))
                 tx, ty = self.TAIL_MAP.get(dir_key, (0, 3))
 
-            # body
-            else:
+            else: # body
                 prev_seg = self.fix_teleport_vector(self.body[i - 1] - segment)
                 next_seg = self.fix_teleport_vector(self.body[i + 1] - segment)
 
-                # default segment
                 if prev_seg.x == next_seg.x or prev_seg.y == next_seg.y:
-                    tx, ty = (2, 0)
+                    tx, ty = (2, 0) # default segment
 
-                # rotate
-                else:
+                else: # rotate
                     px, py = int(prev_seg.x), int(prev_seg.y)
                     nx, ny = int(next_seg.x), int(next_seg.y)
 
@@ -511,12 +503,10 @@ class Food:
         self.type = 'rare' if randint(1, 9) == 8 else 'common'
 
     def draw(self, screen, game):
-        theme = game.get_theme()
-
         if game.graphics_mode == "SPRITES":
             self.draw_sprites(screen, game)
         else:
-            self.draw_minimal(screen, theme)
+            self.draw_minimal(screen, game.get_theme())
 
     def draw_minimal(self, screen, theme):
         color = theme["food_common"] if self.type == 'common' else theme["food_rare"]
