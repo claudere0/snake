@@ -585,10 +585,12 @@ class Game:
         self.assets = AssetManager()
         self.sounds = {}
         self.load_sounds()
+        self.update_volume()
 
         self.config = load_config()
         self.theme_index = self.config.get("theme_index", 0)
         self.graphics_mode = self.config.get("graphics_mode", "MINIMAL")
+        self.volume_level = self.config.get("volume", 2)
 
         self.states = {
             StateID.MENU: MenuState(self),
@@ -617,12 +619,24 @@ class Game:
         if sound_name in self.sounds and self.sounds[sound_name]:
             self.sounds[sound_name].play()
 
+    def update_volume(self):
+        float_volume = (self.volume_level * 11) / 100.0
+        for sound in self.sounds.values():
+            if sound:
+                sound.set_volume(float_volume)
+
+    def set_volume_level(self, level):
+        self.volume_level = level
+        self.update_volume()
+        self.save_current_config()
+
     def get_theme(self):
         return THEMES[self.theme_index]
 
     def save_current_config(self):
         play_state = self.states[StateID.PLAYING]
-        save_config(self.theme_index, play_state.high_score, self.graphics_mode)
+        save_config(self.theme_index, play_state.high_score, self.graphics_mode, self.volume_level)
+
 
     def events(self):
         for event in pygame.event.get():
