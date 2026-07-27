@@ -97,7 +97,7 @@ THEMES = [
 CONFIG_FILE = "config.json"
 
 def load_config():
-    default_config = {"theme_index": 0, "high_score": 0}
+    default_config = {"theme_index": 0, "high_score": 0, "graphics_mode": "MINIMAL"}
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, "r") as f:
@@ -108,10 +108,11 @@ def load_config():
         save_config(default_config["theme_index"], default_config["high_score"])
         return default_config
 
-def save_config(theme_index, high_score):
+def save_config(theme_index, high_score, graphics_mode):
     data = {
         "theme_index": theme_index,
-        "high_score": high_score
+        "high_score": high_score,
+        "graphics_mode": graphics_mode
     }
     with open(CONFIG_FILE, "w") as f:
         json.dump(data, f, indent=4)
@@ -306,29 +307,40 @@ class SettingsState:
                 self.game.theme_index = (self.game.theme_index + 1) % len(THEMES)
                 self.game.save_current_config()
 
+            if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                if self.game.graphics_mode == "MINIMAL":
+                    self.game.graphics_mode = "SPRITES"
+                else:
+                    self.game.graphics_mode = "MINIMAL"
+                self.game.save_current_config()
+
     def update(self, dt):
         pass
 
     def draw(self, screen):
         theme = self.game.get_theme()
         screen.fill(theme["bg"])
-        self.draw_message(screen, theme)
+        self.draw_ui(screen, theme)
         
-    def draw_message(self, screen, theme):
+    def draw_text(self, screen, text, color, y_offset):
+        rendered_text = FONT.render(text, True, color)
+        x = (WIDTH - rendered_text.get_width()) // 2
+        y = (HEIGHT - rendered_text.get_height()) // 2 + y_offset
+        screen.blit(rendered_text, (x, y))
+
+    def draw_ui(self, screen, theme):
         color = theme["ui_text"]
-        play_image = FONT.render(f"THEME: {theme['name']}", True, color)
-        screen.blit(play_image, ((WIDTH - play_image.get_width()) // 2, (HEIGHT - play_image.get_height()) // 2 - 64))
 
-        prompt_image = FONT.render('ARROWS TO CHANGE THEME', True, color)
-        screen.blit(prompt_image, ((WIDTH - prompt_image.get_width()) // 2, (HEIGHT - prompt_image.get_height()) // 2 - 24))
+        self.draw_text(screen, f"THEME: {theme['name']}", color, -100)
+        self.draw_text(screen, f"GRAPHICS: {self.game.graphics_mode}", color, -60)
+        self.draw_text(screen, "LEFT/RIGHT: THEME", color, -20)
+        self.draw_text(screen, "UP/DOWN: GRAPHICS", color, 20)
+        self.draw_text(screen, "ESC TO MENU", color, 60)
 
-        snake_rect = pygame.Rect((WIDTH - 128) // 2, (HEIGHT - 32) // 2 + 20, 64, 32)
-        food_rect = pygame.Rect((WIDTH - 128) // 2 + 64, (HEIGHT - 32) // 2 + 20, 64, 32)
+        snake_rect = pygame.Rect((WIDTH - 128) // 2, (HEIGHT - 32) // 2 + 100, 64, 32)
+        food_rect = pygame.Rect((WIDTH - 128) // 2 + 64, (HEIGHT - 32) // 2 + 100, 64, 32)
         pygame.draw.rect(screen, theme["snake"], snake_rect)
         pygame.draw.rect(screen, theme["food_common"], food_rect)
-
-        escape_image = FONT.render('ESC TO RETURN TO MENU', True, color)
-        screen.blit(escape_image, ((WIDTH - escape_image.get_width()) // 2, (HEIGHT - escape_image.get_height()) // 2 + 64))
 
 class Snake:
     def __init__(self):
@@ -443,6 +455,7 @@ class Game:
 
         self.config = load_config()
         self.theme_index = self.config.get("theme_index", 0)
+        self.graphics_mode = self.config.get("graphics_mode", "MINIMAL")
 
         self.states = {
             StateID.MENU: MenuState(self),
@@ -476,7 +489,7 @@ class Game:
 
     def save_current_config(self):
         play_state = self.states[StateID.PLAYING]
-        save_config(self.theme_index, play_state.high_score)
+        save_config(self.theme_index, play_state.high_score, self.graphics_mode)
 
     def events(self):
         for event in pygame.event.get():
