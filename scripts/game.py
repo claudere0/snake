@@ -2,6 +2,7 @@ from random import randint
 from pygame.math import Vector2
 from .constants import *
 from .config_manager import *
+from .assets_manager import AssetManager
 
 class MenuState:
     def __init__(self, game):
@@ -405,31 +406,6 @@ class Food:
             screen.blit(sprite, rect)
         else:
             self.draw_minimal(screen, game.get_theme())
-
-class AssetManager:
-    def __init__(self):
-        self.spritesheet = None
-        self.load_spritesheet()
-
-    def load_spritesheet(self):
-        path = "images/theme_spritesheet.png"
-        if os.path.exists(path):
-            try:
-                self.spritesheet = pygame.image.load(path).convert_alpha()
-                print("Spritesheet loaded successfully!")
-                return
-            except Exception as e:
-                print(f"Error loading spritesheet: {e}")
-        print("Warning: theme_spritesheet.png not found!")
-
-    def get_tile(self, theme_index, tile_x, tile_y):
-        if not self.spritesheet:
-            return None
-
-        pixel_x = (theme_index % 4) * THEME_SPRITESHEET_SIZE + (tile_x * CELL_SIZE)
-        pixel_y = (theme_index // 4) * THEME_SPRITESHEET_SIZE + (tile_y * CELL_SIZE)
-
-        return self.spritesheet.subsurface(pygame.Rect(pixel_x, pixel_y, CELL_SIZE, CELL_SIZE))
 
 class Game:
     def __init__(self):
