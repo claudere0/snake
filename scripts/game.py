@@ -11,8 +11,6 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.assets = AssetManager()
-        self.sounds = {}
-        self.load_sounds()
         self.font = pygame.font.SysFont(FONT_NAME, FONT_SIZE)
 
         self.config = load_config()
@@ -37,22 +35,9 @@ class Game:
 
         self.current_state = self.states[new_state_id]
 
-    def load_sounds(self):
-        try:
-            self.sounds["crunch"] = pygame.mixer.Sound("sound/crunch.wav")
-        except FileNotFoundError:
-            print("Warning: file sound/crunch.wav not found!")
-            self.sounds["crunch"] = None
-
-    def play_sound(self, sound_name):
-        if sound_name in self.sounds and self.sounds[sound_name]:
-            self.sounds[sound_name].play()
-
     def update_volume(self):
         float_volume = (self.volume_level * 11) / 100.0
-        for sound in self.sounds.values():
-            if sound:
-                sound.set_volume(float_volume)
+        self.assets.set_volume(float_volume)
 
     def set_volume_level(self, level):
         self.volume_level = level

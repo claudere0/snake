@@ -210,7 +210,7 @@ class PlayState:
             self.snake.grow()
             self.score += self.food.value
 
-            self.game.play_sound("crunch")
+            self.game.assets.play_sound("crunch")
             self.food.respawn(self.snake.body)
 
             self.STEP_INTERVAL = max(self.MIN_SPEED, self.STEP_INTERVAL - self.SPEED_STEP)
@@ -319,7 +319,7 @@ class SettingsState:
 
             if level is not None:
                 self.game.set_volume_level(level)
-                self.game.play_sound("crunch")
+                self.game.assets.play_sound("crunch")
 
     def update(self, dt):
         pass
@@ -537,7 +537,10 @@ class Food:
 class AssetManager:
     def __init__(self):
         self.spritesheet = None
+        self.sounds = {}
+
         self.load_spritesheet()
+        self.load_sounds()
 
     def load_spritesheet(self):
         path = "images/theme_spritesheet.png"
@@ -559,6 +562,22 @@ class AssetManager:
 
         return self.spritesheet.subsurface(pygame.Rect(pixel_x, pixel_y, CELL_SIZE, CELL_SIZE))
 
+    def load_sounds(self):
+        try:
+            self.sounds["crunch"] = pygame.mixer.Sound("sound/crunch.wav")
+        except FileNotFoundError:
+            print("Warning: file sound/crunch.wav not found!")
+            self.sounds["crunch"] = None
+
+    def play_sound(self, sound_name):
+        if sound_name in self.sounds and self.sounds[sound_name]:
+            self.sounds[sound_name].play()
+            
+    def set_volume(self, volume):
+        for sound in self.sounds.values():
+            if sound:
+                sound.set_volume(volume)
+
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -566,8 +585,6 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.assets = AssetManager()
-        self.sounds = {}
-        self.load_sounds()
         self.font = pygame.font.SysFont(FONT_NAME,FONT_SIZE)
 
         self.config = load_config()
@@ -592,22 +609,9 @@ class Game:
 
         self.current_state = self.states[new_state_id]
 
-    def load_sounds(self):
-        try:
-            self.sounds["crunch"] = pygame.mixer.Sound("sound/crunch.wav")
-        except FileNotFoundError:
-            print("Warning: file sound/crunch.wav not found!")
-            self.sounds["crunch"] = None
-
-    def play_sound(self, sound_name):
-        if sound_name in self.sounds and self.sounds[sound_name]:
-            self.sounds[sound_name].play()
-
     def update_volume(self):
         float_volume = (self.volume_level * 11) / 100.0
-        for sound in self.sounds.values():
-            if sound:
-                sound.set_volume(float_volume)
+        self.assets.set_volume(float_volume)
 
     def set_volume_level(self, level):
         self.volume_level = level

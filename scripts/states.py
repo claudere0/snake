@@ -81,7 +81,7 @@ class PlayState:
             self.snake.grow()
             self.score += self.food.value
 
-            self.game.play_sound("crunch")
+            self.game.assets.play_sound("crunch")
             self.food.respawn(self.snake.body)
 
             self.STEP_INTERVAL = max(self.MIN_SPEED, self.STEP_INTERVAL - self.SPEED_STEP)
@@ -190,7 +190,7 @@ class SettingsState:
 
             if level is not None:
                 self.game.set_volume_level(level)
-                self.game.play_sound("crunch")
+                self.game.assets.play_sound("crunch")
 
     def update(self, dt):
         pass
