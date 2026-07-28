@@ -1,6 +1,6 @@
 # Snake (Pygame)
 
-![Gameplay](images/snake_volcano.gif)
+<video src="https://github.com/user-attachments/assets/28f05d46-1446-4381-b97d-870463ae0a3d" autoplay loop muted playsinline width="100%"></video>
 
 A modern, highly modular clone of the classic Snake game, written in Python using the Pygame library.
 
