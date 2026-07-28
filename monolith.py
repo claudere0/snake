@@ -31,7 +31,7 @@ THEMES = [
         "ui_bg": (0, 0, 0)
     },
     {
-        "name": "MONOCHROME",
+        "name": "TERMINAL",
         "bg": (0, 0, 0),
         "snake": (255, 255, 255),
         "food_common": (0, 255, 0),
@@ -67,7 +67,7 @@ THEMES = [
         "ui_bg": (255, 255, 255)
     },
     {
-        "name": "ICE",
+        "name": "ICEBERG",
         "bg": (255, 255, 255),
         "snake": (0, 255, 255),
         "food_common": (0, 0, 255),
