@@ -2,13 +2,14 @@
 
 <video src="https://github.com/user-attachments/assets/28f05d46-1446-4381-b97d-870463ae0a3d" autoplay loop muted playsinline width="100%"></video>
 
-A modern, highly modular clone of the classic Snake game, written in Python using the Pygame library.
+(Above is a beautiful gameplay with a volcano theme.)
+A clone of the classic Snake game, written in Python using the Pygame library.
 
-This project represents a major architectural milestone in my learning journey. It successfully transitions from a monolithic codebase (over 650 lines in a single file) to a clean, scalable structure using professional Design Patterns.
+This project represents a significant architectural milestone in my learning. It successfully transitioned from a monolithic codebase (over 650 lines in a single file) to a clean, scalable structure using several design patterns.
 
 ## What I Learned in This Project
 
-Compared to my previous projects (Pong, Breakout, Space Invaders), this game introduces several advanced software engineering concepts:
+Compared to my previous projects (Pong, Breakout, Space Invaders), this game introduces several software engineering concepts:
 
 1. **State Pattern:**
    - Game logic is no longer cluttered with endless `if menu_active:` or `if game_over:` checks. 
@@ -21,9 +22,6 @@ Compared to my previous projects (Pong, Breakout, Space Invaders), this game int
    - Extracted hardcoded settings into a dynamic `config_manager.py` that reads and writes to a `config.json` file.
    - The game now remembers your high score, selected theme, graphics mode, and volume level even after closing!
 
-4. **MVC-like Separation:**
-   - Game entities (`Snake`, `Food`) are fully decoupled from the core game loop. The models only manage their internal data (coordinates, direction), making the codebase highly scalable and testable.
-
 ## Features
 
 - **Classic Gameplay:** Eat food to grow longer and score points. The snake moves faster as your score increases!
@@ -34,6 +32,8 @@ Compared to my previous projects (Pong, Breakout, Space Invaders), this game int
 - **Persistent High Scores:** Your best score is saved locally.
 - **Dynamic Audio:** Crunch sounds when eating, with adjustable volume (0-9).
 - **Pause System:** Press space to pause the game at any time.
+
+![Gameplay](images/screenshot.png)
 
 ## Controls
 
