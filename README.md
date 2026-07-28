@@ -7,6 +7,17 @@ A clone of the classic Snake game, written in Python using the Pygame library.
 
 This project represents a significant architectural milestone in my learning. It successfully transitioned from a monolithic codebase (over 650 lines in a single file) to a clean, scalable structure using several design patterns.
 
+## Play in Browser
+
+You can play the game directly in your browser without installing anything! 
+**👉 [Play Snake here](https://claudere0.github.io/snake/)**
+
+### ⚠️ Important Notes for the First Launch:
+- When you open the link for the first time, you will see a blank turquoise (light-green/blue) screen. **Please wait!** It can take anywhere from 30 seconds to 3 minutes for the pygbag and Python environment to download and cache in your browser.
+- Once the loading is complete, a gray screen with blue text saying **"Ready to start!"** will appear.
+- Simply **click once** on that text, and the game will start immediately.
+- *Note: Subsequent launches will be much faster since the game files will already be saved in your browser's cache.*
+
 ## What I Learned in This Project
 
 Compared to my previous projects (Pong, Breakout, Space Invaders), this game introduces several software engineering concepts:
@@ -84,14 +95,3 @@ snake/
    ```bash
    python main.py
    ```
-
-## Play in Browser
-
-You can play the game directly in your browser without installing anything! 
-**👉 [Play Snake here](https://claudere0.github.io/snake/)**
-
-### ⚠️ Important Notes for the First Launch:
-- When you open the link for the first time, you will see a blank turquoise (light-green/blue) screen. **Please wait!** It can take anywhere from 30 seconds to 3 minutes for the pygbag and Python environment to download and cache in your browser.
-- Once the loading is complete, a gray screen with blue text saying **"Ready to start!"** will appear.
-- Simply **click once** on that text, and the game will start immediately.
-- *Note: Subsequent launches will be much faster since the game files will already be saved in your browser's cache.*
