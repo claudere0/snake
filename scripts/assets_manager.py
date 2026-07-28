@@ -1,6 +1,6 @@
 import pygame
 import os
-from scripts.constants import THEME_SPRITESHEET_SIZE, CELL_SIZE
+from .constants import THEME_SPRITESHEET_SIZE, CELL_SIZE
 
 class AssetManager:
     def __init__(self):

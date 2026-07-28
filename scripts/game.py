@@ -1,5 +1,4 @@
-from random import randint
-from pygame.math import Vector2
+import pygame
 from .constants import *
 from .config_manager import *
 from .assets_manager import AssetManager
@@ -14,6 +13,7 @@ class Game:
         self.assets = AssetManager()
         self.sounds = {}
         self.load_sounds()
+        self.font = pygame.font.SysFont(FONT_NAME, FONT_SIZE)
 
         self.config = load_config()
         self.theme_index = self.config.get("theme_index", 0)

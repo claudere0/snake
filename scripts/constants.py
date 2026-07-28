@@ -1,11 +1,8 @@
-import pygame
 from enum import Enum, auto
 
-pygame.mixer.pre_init(44100,-16,2,512)
-pygame.init()
-
 FPS = 60
-FONT = pygame.font.SysFont('monospace', 36)
+FONT_NAME = 'monospace'
+FONT_SIZE = 36
 
 CELL_SIZE = 32
 GRID_WIDTH = 16

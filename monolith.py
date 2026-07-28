@@ -7,7 +7,8 @@ pygame.mixer.pre_init(44100,-16,2,512)
 pygame.init()
 
 FPS = 60
-FONT = pygame.font.SysFont('monospace', 36)
+FONT_NAME = 'monospace'
+FONT_SIZE = 36
 
 CELL_SIZE = 32
 GRID_WIDTH = 16
@@ -151,12 +152,12 @@ class MenuState:
 
     def draw_message(self, screen, theme):
         color = theme["ui_text"]
-        play_image = FONT.render('PRESS ENTER TO START', True, color)
-        screen.blit(play_image, ((WIDTH - play_image.get_width()) // 2, (HEIGHT - play_image.get_height()) // 2 - 16))
-        quit_image = FONT.render('PRESS Q TO QUIT', True, color)
-        screen.blit(quit_image, ((WIDTH - quit_image.get_width()) // 2, (HEIGHT - quit_image.get_height()) // 2 + 16))
-        settings_image = FONT.render('PRESS TAB TO SETTINGS', True, color)
-        screen.blit(settings_image, ((WIDTH - settings_image.get_width()) // 2, (HEIGHT - settings_image.get_height()) // 2 + 48))
+        play_image = self.game.font.render('PRESS ENTER TO START', True, color)
+        screen.blit(play_image, ((WIDTH - play_image.get_width()) // 2, (HEIGHT - play_image.get_height()) // 2 - 32))
+        quit_image = self.game.font.render('PRESS Q TO QUIT', True, color)
+        screen.blit(quit_image, ((WIDTH - quit_image.get_width()) // 2, (HEIGHT - quit_image.get_height()) // 2 + 0))
+        settings_image = self.game.font.render('PRESS TAB TO SETTINGS', True, color)
+        screen.blit(settings_image, ((WIDTH - settings_image.get_width()) // 2, (HEIGHT - settings_image.get_height()) // 2 + 32))
 
 class PlayState:
     def __init__(self, game):
@@ -243,15 +244,15 @@ class PlayState:
 
     def draw_ui(self, screen, theme):
         color = theme["ui_text"]
-        score_surface = FONT.render(f"SCORE: {self.score}", True, color)
+        score_surface = self.game.font.render(f"SCORE: {self.score}", True, color)
         screen.blit(score_surface, (SCORE_OFFSET_X, (TOP_PANEL_HEIGHT - score_surface.get_height()) // 2))
 
-        high_score_surface = FONT.render(f"HIGH SCORE: {self.high_score}", True, color)
+        high_score_surface = self.game.font.render(f"HIGH SCORE: {self.high_score}", True, color)
         screen.blit(high_score_surface, (SCORE_OFFSET_X, HEIGHT - BOTTOM_PANEL_HEIGHT + (BOTTOM_PANEL_HEIGHT - high_score_surface.get_height()) // 2))
 
     def draw_pause(self, screen, theme):
         color = theme["ui_text"]
-        pause_surface = FONT.render("PAUSED", True, color)
+        pause_surface = self.game.font.render("PAUSED", True, color)
 
         x = (WIDTH - pause_surface.get_width()) // 2
         y = (HEIGHT - pause_surface.get_height()) // 2
@@ -281,10 +282,10 @@ class GameOverState:
 
     def draw_message(self, screen, theme):
         color = theme["ui_text"]
-        restart_image = FONT.render('PRESS ENTER TO RESTART', True, color)
+        restart_image = self.game.font.render('PRESS ENTER TO RESTART', True, color)
         screen.blit(restart_image, ((WIDTH - restart_image.get_width()) // 2, (HEIGHT - restart_image.get_height()) // 2 - 16))
 
-        escape_image = FONT.render('ESC TO RETURN TO MENU', True, color)
+        escape_image = self.game.font.render('ESC TO RETURN TO MENU', True, color)
         screen.blit(escape_image, ((WIDTH - escape_image.get_width()) // 2, (HEIGHT - escape_image.get_height()) // 2 + 16))
 
 class SettingsState:
@@ -329,7 +330,7 @@ class SettingsState:
         self.draw_ui(screen, theme)
 
     def draw_text(self, screen, text, color, y_offset):
-        rendered_text = FONT.render(text, True, color)
+        rendered_text = self.game.font.render(text, True, color)
         x = (WIDTH - rendered_text.get_width()) // 2
         y = (HEIGHT - rendered_text.get_height()) // 2 + y_offset
         screen.blit(rendered_text, (x, y))
@@ -567,6 +568,7 @@ class Game:
         self.assets = AssetManager()
         self.sounds = {}
         self.load_sounds()
+        self.font = pygame.font.SysFont(FONT_NAME,FONT_SIZE)
 
         self.config = load_config()
         self.theme_index = self.config.get("theme_index", 0)

@@ -1,6 +1,6 @@
 import os
 import json
-from scripts.constants import CONFIG_FILE
+from .constants import CONFIG_FILE
 
 def load_config():
     default_config = {"theme_index": 0, "high_score": 0, "graphics_mode": "MINIMAL", "volume": 2}
